@@ -4,7 +4,7 @@ description: "Apply when reviewing or shaping code that's hard to trace. Count l
 disable-model-invocation: true
 ---
 
-> **On Hermes:** load the `pstack-on-hermes` skill first and apply its substitutions (subagents, models, paths, missing Cursor features).
+> **On Hermes:** load `agent-plugin-pstack-7171b73f:pstack-on-hermes` with `skill_view` first and apply its substitutions (subagents, models, paths, missing Cursor features).
 
 # Minimize Reader Load
 

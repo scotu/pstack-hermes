@@ -13,16 +13,17 @@ pstack's skills are upstream text written for Cursor, kept unedited so they stay
 
 ## Skills
 
-- A pstack skill named with a slash (`/how`, `/why`, `/tdd`, `/unslop`) or in bold (the **how** skill) is a Hermes skill in this plugin. Load it with `skill_view`. It may be listed with a `pstack:` prefix (`pstack:how`).
-- Paths a skill gives relative to itself (`playbooks/bug-fix.md`, `references/rubric.md`, `scripts/...`) sit inside that skill's directory. Read them from there.
+- A pstack skill named with a slash (`/how`, `/why`, `/tdd`, `/unslop`) or in bold (the **how** skill) is a Hermes skill in this plugin. Load it with `skill_view` under its full name, `agent-plugin-pstack-7171b73f:<name>` (for example `agent-plugin-pstack-7171b73f:how`). Bare names do not resolve.
+- Files a skill names relative to itself (`playbooks/bug-fix.md`, `references/rubric.md`) load with `skill_view("agent-plugin-pstack-7171b73f:<skill>", file_path="<relative path>")`. To run a script, find the skill's directory on disk: `plugins/pstack/skills/<skill>/` under the profile's Hermes home.
+- When you delegate, give the child the full skill names it must load.
 - Cursor's built-in `create-skill` becomes the Hermes skill format: `SKILL.md` with `name` and `description` frontmatter, where `name` matches its directory, placed under the profile's `skills/<category>/<name>/`. Use `skill_manage` or write the file.
 - Cursor's built-in `babysit` doesn't exist. Use pstack's Babysit playbook, which is what poteto-mode wants anyway.
 
 ## Subagents
 
 - `Task` with any `subagent_type` becomes `delegate_task`, one task per subagent. A child sees only its `goal` and `context`, so put the whole brief there: file paths, scope, the role's prompt file, and the expected output shape. Use `output_schema` when you will parse the result.
-- `subagent_type: "poteto-agent"`: begin the child's `context` with the text of `references/poteto-agent.md` (in this skill's directory). It tells the child to load the `poteto-mode` skill and read its `SKILL.md` in full, Principles index included, before any work.
-- The **Comment Sicko** agent: delegate with `references/comment-sicko.md` as the child's `context`, plus the files or diff in scope.
+- `subagent_type: "poteto-agent"`: begin the child's `context` with the text of `references/poteto-agent.md` (`skill_view("agent-plugin-pstack-7171b73f:pstack-on-hermes", file_path="references/poteto-agent.md")`). Add: "load `agent-plugin-pstack-7171b73f:poteto-mode` and `agent-plugin-pstack-7171b73f:pstack-on-hermes` with skill_view first".
+- The **Comment Sicko** agent: delegate with `references/comment-sicko.md` (same skill) as the child's `context`, plus the files or diff in scope.
 - `readonly: true`: write "read-only: do not edit, create, or delete files" into the child's goal.
 - `is_background` and resume-an-existing-agent: `delegate_task` children always run in the background. Use `delegate_task(action="list"|"steer")` to follow up on one instead of spawning a sibling.
 
@@ -56,4 +57,4 @@ Hermes has no per-call model. The chat model runs this session, and every `deleg
 
 ## Scripts
 
-`poteto-mode/scripts/` (`watch-pr`, `orch`, `check-plan.mjs`, `worktree-audit.sh`) need `bun`, `node`, and `gh` on PATH. Run `bun install` in `poteto-mode/scripts/` once before the first use. `worktree-audit.sh` reads Cursor transcript paths and finds nothing on Hermes, so treat its "no transcript" signal as unknown, not as idle.
+`poteto-mode/scripts/` (`watch-pr`, `orch`, `check-plan.mjs`, `worktree-audit.sh`) live under `plugins/pstack/skills/poteto-mode/scripts/` in the profile's Hermes home. They need `bun`, `node`, and `gh` on PATH. Run `bun install` there once before the first use. `worktree-audit.sh` reads Cursor transcript paths and finds nothing on Hermes, so treat its "no transcript" signal as unknown, not as idle.

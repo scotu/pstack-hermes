@@ -10,7 +10,7 @@ description: >-
 
 # Setup pstack (Hermes)
 
-Write `pstack-models.md` in this profile's home directory: `~/.hermes/profiles/<profile>/`, or `~/.hermes/` for the default profile. The `pstack-on-hermes` skill reads it whenever a pstack skill needs a role's model. Read `pstack-on-hermes` first if you have not.
+Write `pstack-models.md` in this profile's home directory: `~/.hermes/profiles/<profile>/`, or `~/.hermes/` for the default profile. The `pstack-on-hermes` skill reads it whenever a pstack skill needs a role's model. Load `agent-plugin-pstack-7171b73f:pstack-on-hermes` with `skill_view` first if you have not.
 
 ## 1. Load the current state
 
@@ -74,4 +74,4 @@ Read the file back, and read `delegation.model` back with `config get`. Tell the
 
 ## 6. Offer a verification skill (optional)
 
-Check whether the project has a way to drive the real app for proof: a `verify-*` skill or an existing harness. If not, offer once: "want a project-local verification skill, so agents can drive the app the way a user does and prove changes work? I can generate one with create-verification-skill." On yes, load and follow the `create-verification-skill` skill. On no, move on without pushing.
+Check whether the project has a way to drive the real app for proof: a `verify-*` skill or an existing harness. If not, offer once: "want a project-local verification skill, so agents can drive the app the way a user does and prove changes work? I can generate one with create-verification-skill." On yes, load and follow `agent-plugin-pstack-7171b73f:create-verification-skill`. On no, move on without pushing.

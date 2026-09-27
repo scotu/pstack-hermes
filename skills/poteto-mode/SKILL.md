@@ -8,7 +8,7 @@ color: yellow
 reminder: New task? Playbook match or rigor needed -> apply /poteto-mode. Casual turn or user opts out -> don't.
 ---
 
-> **On Hermes:** load the `pstack-on-hermes` skill first and apply its substitutions (subagents, models, paths, missing Cursor features).
+> **On Hermes:** load `agent-plugin-pstack-7171b73f:pstack-on-hermes` with `skill_view` first and apply its substitutions (subagents, models, paths, missing Cursor features).
 
 # Poteto mode
 
