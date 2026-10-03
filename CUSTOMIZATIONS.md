@@ -43,3 +43,10 @@ Why: routing by cost needs to know each model's cost class and capability, and o
 Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
 Touches: skills/setup-pstack/SKILL.md
 Check: python3 -m unittest tests.test_skills.SetupInventoryTest passes
+
+## C-004 — poteto-mode: one live lane per distinct check  [active]
+Intent: multi-phase plans run one live-verification lane per distinct check (no repeats) and state "(N lanes)"; ten lanes only when going wide. check-plan.mjs accepts both phrasings and requires lanes numbered exactly 1..N.
+Why: ten lanes repeat about five distinct checks; the repeats spend quota without adding coverage.
+Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
+Touches: skills/poteto-mode/scripts/check-plan.mjs, skills/poteto-mode/playbooks/multi-phase-plan.md
+Check: python3 -m unittest tests.test_check_plan passes; grep -c "Ten lanes" skills/poteto-mode/playbooks/multi-phase-plan.md prints 1

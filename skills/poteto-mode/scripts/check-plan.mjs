@@ -4,7 +4,8 @@ import process from "node:process";
 
 const RULE =
 	"Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.";
-const LANES = /Ten lanes on `[^`<>]+` at the PR head/;
+// C-004 (pstack-economy): "Ten lanes" is the go-wide width; lean plans state one lane per distinct check.
+const LANES = /(Ten lanes|One lane per distinct check) on `[^`<>]+` at the PR head(?: \((\d+) lanes?\))?/;
 const SUB_BLOCKS = [
 	"Depends on.",
 	"Files.",
@@ -135,10 +136,13 @@ for (const pr of prSections) {
 
 	const live = block("Verify, live.");
 	if (live) {
-		if (!LANES.test(live.rest)) fail(live.n, `${pr.title}: Verify, live lacks "Ten lanes on \`<swarm workers model>\` at the PR head" with the model filled in`);
+		const laneLine = live.rest.match(LANES);
+		const expected = !laneLine ? 10 : laneLine[1] === "Ten lanes" ? 10 : Number(laneLine[2] ?? 0);
+		if (!laneLine || expected < 1) fail(live.n, `${pr.title}: Verify, live lacks "Ten lanes on \`<swarm workers model>\` at the PR head" or "One lane per distinct check on \`<swarm workers model>\` at the PR head (<N> lanes)" with the model filled in`);
 		const lanes = boxes(live.lines).map((b) => ({ ...b, m: b.text.match(/^Lane (\d+)\. /) }));
 		const numbers = lanes.filter((b) => b.m).map((b) => Number(b.m[1])).sort((a, b) => a - b);
-		if (numbers.join(",") !== "1,2,3,4,5,6,7,8,9,10") fail(live.n, `${pr.title}: lanes are [${numbers.join(",")}], expected 1 to 10`);
+		const want = Array.from({ length: Math.max(expected, 1) }, (_, i) => i + 1).join(",");
+		if (numbers.join(",") !== want) fail(live.n, `${pr.title}: lanes are [${numbers.join(",")}], expected 1 to ${Math.max(expected, 1)}`);
 		for (const lane of lanes) {
 			if (!lane.m) fail(lane.n, `${pr.title}: live box is not a lane`);
 			else if (!/Save `[^`]+`/.test(lane.text)) fail(lane.n, `${pr.title}: lane ${lane.m[1]} names no screenshot`);
