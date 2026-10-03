@@ -36,3 +36,10 @@ Why: one hook makes the economy policy reach all 47 skills without editing each.
 Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
 Touches: skills/pstack-on-hermes/SKILL.md
 Check: python3 -m unittest tests.test_skills.OnHermesHookTest passes
+
+## C-003 — setup-pstack: model inventory and lean panel defaults  [active]
+Intent: setup-pstack proposes and confirms an inventory of every reachable model (cost class, tier, tools, executor), recommends parent/delegate/cron slots by cost, and writes lean defaults for duplicated-work panels (architect runners: parent; arena runners: parent, delegate; arena cross-judge pool: parent; interrogate reviewers: delegate).
+Why: routing by cost needs to know each model's cost class and capability, and old 3-entry panel defaults made duplicated work the norm.
+Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
+Touches: skills/setup-pstack/SKILL.md
+Check: python3 -m unittest tests.test_skills.SetupInventoryTest passes

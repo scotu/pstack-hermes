@@ -52,5 +52,17 @@ class OnHermesHookTest(unittest.TestCase):
         self.assertIn("pstack-economy", subagents.split("\n- ", 2)[1])
 
 
+class SetupInventoryTest(unittest.TestCase):
+    def test_inventory_and_lean_defaults(self):
+        text = skill("setup-pstack")
+        for needle in ("cost class", "self-hosted", "subscription", "per-token", "frontier", "strong", "light",
+                       "tools", "cron", "# Models this profile can reach"):
+            self.assertIn(needle, text)
+        for line in ("architect runners: parent\n", "arena runners: parent, delegate\n",
+                     "arena cross-judge pool: parent\n", "interrogate reviewers: delegate\n"):
+            self.assertIn(line, text)
+        self.assertNotIn("interrogate reviewers: delegate, delegate, delegate", text)
+
+
 if __name__ == "__main__":
     unittest.main()
