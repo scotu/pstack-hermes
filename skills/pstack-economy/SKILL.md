@@ -61,28 +61,36 @@ Then wait for an explicit yes. "Go wide", "spare no expense", or a named width f
 
 ## Split audit tick
 
-Use this in place of the hourly `/loop 1h` tick when a program arms its audit tick and `pstack-models.md` has a `cron` model with `tools: yes`. The watcher does the mechanical checks for free. You do the judgment.
+Use this in place of the hourly `/loop 1h` tick when a program arms its audit tick and `pstack-models.md` has a `cron` model with `tools: yes`. The watcher does the mechanical checks for free. You do the judgment. Below, the profile home is `~/.hermes/profiles/<profile>/`, or `~/.hermes/` for the default profile.
 
-1. **Program dir.** Create one outside any repo checkout: `~/.hermes/profiles/<profile>/pstack-programs/<program>/`, or `~/.hermes/pstack-programs/<program>/` for the default profile.
+1. **Program dir.** Create `<profile home>/pstack-programs/<program>/`, outside any repo checkout. Write `plan.txt` there: the plan path, the execution playbook, and the session to report to.
 2. **`owners.tsv`.** Write it in the program dir, tab-separated, with this header: `owner remote repo branch pr expected_minutes started_at`.
    - `remote` is the git URL, and `repo` is `owner/name` for `gh`.
    - `pr` is the PR number, or `-` before the PR exists.
-   - `started_at` is in epoch seconds.
+   - `expected_minutes` and `started_at` (epoch seconds) are integers.
+   - Blank rows and `#` rows are ignored.
    - Update it whenever an owner spawns, opens its PR, or finishes.
-3. **Install the script.** Copy `audit-watch/pstack-audit-watch.py` from this skill's folder (`plugins/pstack/skills/pstack-economy/` under the profile's Hermes home) into `~/.hermes/scripts/`.
+3. **Install the script and prompt.** Hermes runs a profile's cron scripts from that profile's own `scripts/` folder: `~/.hermes/profiles/<profile>/scripts/`, or `~/.hermes/scripts/` for the default profile.
+   - Copy `audit-watch/pstack-audit-watch.py` there from this skill's folder (`plugins/pstack/skills/pstack-economy/` under the profile home).
+   - Fill the prompt: `sed -e "s|<program dir>|$DIR|g" -e "s|<program>|$NAME|g" audit-watch/watcher-prompt.md > "$DIR/watcher-prompt.md"`.
+   - Hermes strips `GH_TOKEN` and `GITHUB_TOKEN` from cron scripts, so `gh` must be logged in through its keyring (`gh auth status`).
 4. **Arm the watcher.** The cron job is named `pstack-audit-<program>`:
    ```
-   hermes -p <profile> cron create 15m "$(cat <skill dir>/audit-watch/watcher-prompt.md)" \
+   hermes -p <profile> cron create 15m "$(cat <program dir>/watcher-prompt.md)" \
      --name pstack-audit-<program> --monitor-script pstack-audit-watch.py \
      --workdir <program dir> --model <cron model> --provider <its provider> --pin \
      --deliver bot-chat:<profile> --failure-deliver local
    ```
    The script runs every 15 minutes. The watcher model runs only when the script's output changes, and replies `[SILENT]` unless something needs you.
-5. **On an escalation** (a message from the watcher naming owners), run the judgment half of the playbook's audit tick for those owners only:
+5. **Check that it works.** Failures are delivered locally, so a broken watcher is otherwise invisible.
+   - Run `hermes -p <profile> cron run pstack-audit-<program>` once.
+   - Confirm with `hermes -p <profile> cron list` (or `cron runs`) that the run succeeded and the monitor script produced owner lines, not "monitor source failed".
+   - If it failed, fix it (script path, `gh` login, `owners.tsv`), or remove the job and fall back to auditing on report-back. Never leave a broken watcher armed.
+6. **On an escalation.** A watcher message names the program, its program dir, and the owners concerned. Read `<program dir>/plan.txt` and `owners.tsv`, then run the judgment half of the playbook's audit tick for those owners only:
    - re-read the playbook from trunk;
    - fix drift;
    - stand down and replace stuck owners;
    - handle failed checks and bot comments.
-6. **Teardown.** When no delegated work is left, run `hermes -p <profile> cron remove pstack-audit-<program>`, then delete the program dir.
+7. **Teardown.** When no delegated work is left, run `hermes -p <profile> cron remove pstack-audit-<program>`, then delete the program dir and its copied script.
 
 Without a `cron` model, arm no tick. Audit when an owner reports back and when the user asks. Arm the hourly `/loop 1h` tick only when the user approves going wide.

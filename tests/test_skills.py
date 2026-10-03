@@ -70,10 +70,36 @@ class SplitTickPlaybooksTest(unittest.TestCase):
     def test_every_loop_1h_sentence_names_the_conditions(self):
         for name in ("multi-phase-plan.md", "autopilot-full.md", "autopilot-stack.md"):
             text = (self.PLAYBOOKS / name).read_text()
+            self.assertIn("pstack-audit-", text, name)
             for line in text.splitlines():
                 if "`/loop 1h`" in line:
                     self.assertIn("going wide", line, f"{name}: {line[:80]}")
-                    self.assertIn("pstack-audit-", line, f"{name}: {line[:80]}")
+
+    def test_no_cron_fallback_is_not_contradicted(self):
+        for name in ("autopilot-full.md", "autopilot-stack.md"):
+            text = (self.PLAYBOOKS / name).read_text()
+            self.assertNotIn("otherwise use the split tick", text, name)
+            self.assertNotIn("in place of the split tick", text, name)
+
+
+class ReviewFixesTest(unittest.TestCase):
+    def test_script_goes_to_the_profile_scripts_dir_and_is_checked(self):
+        text = skill("pstack-economy")
+        self.assertIn("~/.hermes/profiles/<profile>/scripts/", text)
+        self.assertIn("cron run", text)
+        self.assertNotIn("into `~/.hermes/scripts/`.", text)
+
+    def test_escalations_name_the_program(self):
+        prompt = (SKILLS / "pstack-economy" / "audit-watch" / "watcher-prompt.md").read_text()
+        self.assertIn("<program>", prompt)
+        self.assertIn("<program dir>", prompt)
+        text = skill("pstack-economy")
+        self.assertIn("plan.txt", text)
+        self.assertIn("sed", text)
+
+    def test_on_hermes_panel_rule_defers_to_economy(self):
+        text = skill("pstack-on-hermes")
+        self.assertIn("pstack-economy decides how many entries run", text)
 
 
 if __name__ == "__main__":

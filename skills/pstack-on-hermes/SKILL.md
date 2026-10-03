@@ -35,7 +35,7 @@ Hermes has no per-call model. The chat model runs this session, and every `deleg
 - `parent`: do it yourself in this session. Cheap, or needs this conversation's context.
 - `delegate`: a `delegate_task` child.
 - `profile:<name>`: `message_agent` to that profile, which runs on its own model. This is the only way to get a different model family. It is asynchronous: send it, carry on with the other entries, and fold the reply in when its notification arrives. Never wait or poll.
-- **Panel roles** (architect runners, interrogate reviewers, arena runners, the arena cross-judge pool) are lists: one run per entry. When every entry resolves to the same model, say that the panel's model diversity is reduced to prompt diversity. Arena's cross-judge picks an entry whose model differs from yours when one exists.
+- **Panel roles** (architect runners, interrogate reviewers, arena runners, the arena cross-judge pool) are lists. pstack-economy decides how many entries run (lean: the first entry, the first two for arena runners; going wide: one run per entry). When every entry resolves to the same model, say that the panel's model diversity is reduced to prompt diversity. Arena's cross-judge picks an entry whose model differs from yours when one exists.
 
 ## Cursor features
 
