@@ -22,3 +22,10 @@ Check: how to confirm it still holds.
 ```
 
 <!-- entries below, newest last -->
+
+## C-001 — pstack-economy: lean-by-default spending policy  [active]
+Intent: a pstack-economy skill defines lean widths for duplicated agent work (divided work untouched), per-task go-wide approval with a cost statement, tier routing over the setup-pstack inventory with the per-token rule, and the split audit tick procedure.
+Why: upstream assumes cheap LLM calls; this profile pays through subscription quotas, self-hosted and per-token models.
+Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
+Touches: skills/pstack-economy/SKILL.md, tests/test_skills.py
+Check: python3 -m unittest tests.test_skills passes
