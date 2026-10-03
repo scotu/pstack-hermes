@@ -29,3 +29,10 @@ Why: upstream assumes cheap LLM calls; this profile pays through subscription qu
 Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
 Touches: skills/pstack-economy/SKILL.md, tests/test_skills.py
 Check: python3 -m unittest tests.test_skills passes
+
+## C-002 — pstack-on-hermes: route every fan-out through pstack-economy  [active]
+Intent: pstack-on-hermes, which every pstack skill loads first, tells the agent to load and apply pstack-economy before any fan-out, loop, or role-model choice.
+Why: one hook makes the economy policy reach all 47 skills without editing each.
+Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
+Touches: skills/pstack-on-hermes/SKILL.md
+Check: python3 -m unittest tests.test_skills.OnHermesHookTest passes

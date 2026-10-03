@@ -21,6 +21,7 @@ pstack's skills are upstream text written for Cursor, kept unedited so they stay
 
 ## Subagents
 
+- Before any fan-out, loop, or choice of model for a role, load `agent-plugin-pstack-7171b73f:pstack-economy` with `skill_view` and apply it. Its widths and routing override the ones pstack's skills state.
 - `Task` with any `subagent_type` becomes `delegate_task`, one task per subagent. A child sees only its `goal` and `context`, so put the whole brief there: file paths, scope, the role's prompt file, and the expected output shape. Use `output_schema` when you will parse the result.
 - `subagent_type: "poteto-agent"`: begin the child's `context` with the text of `references/poteto-agent.md` (`skill_view("agent-plugin-pstack-7171b73f:pstack-on-hermes", file_path="references/poteto-agent.md")`). Add: "load `agent-plugin-pstack-7171b73f:poteto-mode` and `agent-plugin-pstack-7171b73f:pstack-on-hermes` with skill_view first".
 - The **Comment Sicko** agent: delegate with `references/comment-sicko.md` (same skill) as the child's `context`, plus the files or diff in scope.

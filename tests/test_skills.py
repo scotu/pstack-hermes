@@ -44,5 +44,13 @@ class EconomySkillTest(unittest.TestCase):
         self.assertIn("pstack-audit-<program>", text)
 
 
+class OnHermesHookTest(unittest.TestCase):
+    def test_on_hermes_points_at_economy(self):
+        text = skill("pstack-on-hermes")
+        self.assertIn("agent-plugin-pstack-7171b73f:pstack-economy", text)
+        subagents = text.split("## Subagents", 1)[1]
+        self.assertIn("pstack-economy", subagents.split("\n- ", 2)[1])
+
+
 if __name__ == "__main__":
     unittest.main()
