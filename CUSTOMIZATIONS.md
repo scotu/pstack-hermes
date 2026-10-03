@@ -4,7 +4,7 @@ This file lists the personal changes made on top of the Hermes port of upstream 
 
 - `upstream` holds the exact output of `sync.py`. Never edit it by hand.
 - `main` is `upstream` plus the changes listed here. Hermes installs this branch.
-- `git diff upstream main` shows the full set of changes.
+- `git diff upstream main --` shows the full set of changes. The `--` is needed because macOS sees the `UPSTREAM` file and the `upstream` branch as the same name.
 - Upstream is brought in by `sync.py` with a merge. Never rebase or rewrite `main`, because `hermes plugins update` only fast-forwards.
 
 Each change has one entry. The commits that implement or fix it start with its ID, for example `C-001: …`. When resolving a merge conflict, re-apply the **Intent**. Don't try to preserve the old wording.
