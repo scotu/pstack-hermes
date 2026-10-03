@@ -64,5 +64,17 @@ class SetupInventoryTest(unittest.TestCase):
         self.assertNotIn("interrogate reviewers: delegate, delegate, delegate", text)
 
 
+class SplitTickPlaybooksTest(unittest.TestCase):
+    PLAYBOOKS = ROOT / "skills" / "poteto-mode" / "playbooks"
+
+    def test_every_loop_1h_sentence_names_the_conditions(self):
+        for name in ("multi-phase-plan.md", "autopilot-full.md", "autopilot-stack.md"):
+            text = (self.PLAYBOOKS / name).read_text()
+            for line in text.splitlines():
+                if "`/loop 1h`" in line:
+                    self.assertIn("going wide", line, f"{name}: {line[:80]}")
+                    self.assertIn("pstack-audit-", line, f"{name}: {line[:80]}")
+
+
 if __name__ == "__main__":
     unittest.main()

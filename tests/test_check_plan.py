@@ -136,5 +136,20 @@ class LaneCountTest(unittest.TestCase):
         self.assertEqual(code, 1, out)
 
 
+class ProgramMarkerTest(unittest.TestCase):
+    def test_split_tick_marker_passes(self):
+        code, out = check(plan(TEN, 10, marker=SPLIT))
+        self.assertEqual(code, 0, out)
+
+    def test_loop_marker_still_passes(self):
+        code, out = check(plan(TEN, 10, marker=LOOP))
+        self.assertEqual(code, 0, out)
+
+    def test_no_tick_marker_fails(self):
+        code, out = check(plan(TEN, 10, marker="- [ ] Audit when owners report back."))
+        self.assertEqual(code, 1, out)
+        self.assertIn("pstack-audit-", out)
+
+
 if __name__ == "__main__":
     unittest.main()

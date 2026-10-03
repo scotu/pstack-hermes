@@ -50,3 +50,10 @@ Why: ten lanes repeat about five distinct checks; the repeats spend quota withou
 Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
 Touches: skills/poteto-mode/scripts/check-plan.mjs, skills/poteto-mode/playbooks/multi-phase-plan.md
 Check: python3 -m unittest tests.test_check_plan passes; grep -c "Ten lanes" skills/poteto-mode/playbooks/multi-phase-plan.md prints 1
+
+## C-005 — poteto-mode: split audit tick instead of an hourly root loop  [active]
+Intent: programs arm a split audit tick (free self-hosted cron watcher pstack-audit-<program> running pstack-audit-watch.py, escalating to the root, which does the judgment) when pstack-models.md has a cron model; otherwise no tick (audit on report-back); the hourly /loop 1h root tick only when going wide. check-plan.mjs accepts /loop 1h or pstack-audit- as the program marker.
+Why: an hourly tick on a paid model re-audits unchanged state; mechanical liveness checks are free on a self-hosted model, and judgment is needed only when something changed.
+Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
+Touches: skills/poteto-mode/playbooks/multi-phase-plan.md, skills/poteto-mode/playbooks/autopilot-full.md, skills/poteto-mode/playbooks/autopilot-stack.md, skills/poteto-mode/scripts/check-plan.mjs, skills/pstack-economy/audit-watch/
+Check: python3 -m unittest tests.test_check_plan tests.test_audit_watch tests.test_skills.SplitTickPlaybooksTest passes

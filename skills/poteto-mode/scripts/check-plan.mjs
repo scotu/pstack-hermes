@@ -18,7 +18,8 @@ const SUB_BLOCKS = [
 	"Merge.",
 ];
 const PROGRAM_H3 = ["Arm the program", "Spawn owners", "PR mechanics", "Verdict and merge", "Boot recipe"];
-const PROGRAM_MARKERS = ["git show origin/main:", "/loop 1h", "status message"];
+// C-005 (pstack-economy): the audit tick is the split tick (cron job pstack-audit-<program>) or, going wide, /loop 1h.
+const PROGRAM_MARKERS = ["git show origin/main:", ["/loop 1h", "pstack-audit-"], "status message"];
 const HOW_TO_READ_MARKERS = [
 	"One box is one unit of work",
 	"names the evidence",
@@ -95,7 +96,8 @@ else {
 		else cursor = at + 1;
 	}
 	for (const marker of PROGRAM_MARKERS) {
-		if (!bodyText(program).includes(marker)) fail(program.n, `Program checklist lacks "${marker}"`);
+		const options = Array.isArray(marker) ? marker : [marker];
+		if (!options.some((m) => bodyText(program).includes(m))) fail(program.n, `Program checklist lacks "${options.join('" or "')}"`);
 	}
 }
 
