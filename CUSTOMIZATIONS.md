@@ -9,6 +9,22 @@ This file lists the personal changes made on top of the Hermes port of upstream 
 
 Each change has one entry. The commits that implement or fix it start with its ID, for example `C-001: …`. When resolving a merge conflict, re-apply the **Intent**. Don't try to preserve the old wording.
 
+## Principles
+
+A clean merge only means no customization collided with upstream. New or reworded upstream text can still break these rules. Every file on `main` must follow them, including files no entry touches and files upstream adds later.
+
+- **P-1 Lean by default (C-001 to C-005).** Duplicated agent work runs at pstack-economy's lean width unless the operator approves going wide. Duplicated work means races, best-of, same-prompt panels, repeated verification lanes, and periodic re-checks. Divided work runs as upstream wrote it. A recurring audit tick is the split tick. `/loop 1h` and ten lanes appear only as the going-wide form. A new duplicated-work pattern gets a row in pstack-economy's Lean widths. A new panel role also gets a lean default in setup-pstack.
+- **P-2 Runs on Hermes.** Every tool, feature, skill, plugin, subagent type, model slug and path that a skill names either exists in this build or has a mapping in pstack-on-hermes. Nothing points at files the port drops. Fix this in agent-plugin-factory's port hook or overlay, so the fix reaches every later build.
+- **P-3 Intents apply to the whole tree.** An entry's `Touches:` lists the files it edited. Its Intent is a rule for every file.
+
+`tests/test_principles.py` checks what can be checked mechanically across the whole tree. Everything else is caught by the audit. `python3 -m factory audit pstack` writes `audits/<upstream sha12>.md`, with one row for every path the new upstream build changed. Read each diff, and each new file in full, against these principles. Then give every row a verdict:
+- `complies`;
+- `n/a`, for metadata with no behavior;
+- `port`, when it was fixed in the factory's port hook or overlay;
+- the `C-NNN` it was fixed under, adding the file to that entry's `Touches:`.
+
+`python3 -m factory push pstack` refuses a new upstream build until that file is committed and complete.
+
 Status is `active` or `retired`. Retire an entry when upstream covers it or it is no longer wanted, and keep it in the file as history.
 
 Entry format:
@@ -49,7 +65,7 @@ Intent: multi-phase plans run one live-verification lane per distinct check (no 
 Why: ten lanes repeat about five distinct checks; the repeats spend quota without adding coverage.
 Spec: https://github.com/scotu/agent-plugin-factory/blob/main/docs/specs/2026-10-04-pstack-economy-design.md
 Touches: skills/poteto-mode/scripts/check-plan.mjs, skills/poteto-mode/playbooks/multi-phase-plan.md
-Check: python3 -m unittest tests.test_check_plan passes; grep -c "Ten lanes" skills/poteto-mode/playbooks/multi-phase-plan.md prints 1
+Check: python3 -m unittest tests.test_check_plan tests.test_principles.EconomyPrincipleTest passes; grep -c "Ten lanes" skills/poteto-mode/playbooks/multi-phase-plan.md prints 1
 
 ## C-005 — poteto-mode: split audit tick instead of an hourly root loop  [active]
 Intent: programs arm a split audit tick (free self-hosted cron watcher pstack-audit-<program> running pstack-audit-watch.py, escalating to the root, which does the judgment) when pstack-models.md has a cron model; otherwise no tick (audit on report-back); the hourly /loop 1h root tick only when going wide. check-plan.mjs accepts /loop 1h or pstack-audit- as the program marker.
