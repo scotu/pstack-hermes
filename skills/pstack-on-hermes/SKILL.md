@@ -45,13 +45,17 @@ Hermes has no per-call model. The chat model runs this session, and every `deleg
 - Cursor's `/loop` becomes Hermes `/loop` (a built-in with the same idea). Ending a wake with `LOOP_COMPLETE` on its own line stops it. For wakes that should outlive the session, use a cron job (`cronjob_manage`).
 - **Cursor cloud agent** or cloud VM (one per PR in the shipping and autopilot playbooks, a live lane's VM, a swarm worker with `environment: "cloud"` or `cloud_base_branch`) has no Hermes equivalent. Give each unit a local git worktree (`git worktree add`, or `delegation.worktree_isolation: true` in config) and a `delegate_task` child working in it. Pushing and opening PRs still go through `gh`. A cloud agent's status in the Cursor dashboard becomes `delegate_task(action="list")`.
 - **The agent's store** ("path in the system prompt") becomes the program dir `<profile home>/pstack-programs/<program>/`, the same dir the split audit tick uses (pstack-economy). Decision trails, subagent records with their stuck-after runtimes, orchestrate's project folder, and the store's `docs/` live there. Create it if it is missing.
+- orchestrate's **Project tracker (`notes.md`)** and **Project store** become `notes.md` and the files beside it in that program dir.
+- **PR and CI event subscriptions** become the split audit tick from pstack-economy, whose watcher escalates when a head moves, checks change, or a bot comments. Without a `cron` model there is no tick, so check each PR with `gh pr view` and `gh pr checks` when its owner reports back.
 - Cursor's `mcps/` directory and its MCP list become the MCP tools in this session's tool list.
 - `~/.cursor/rules/pstack-models.mdc` becomes `pstack-models.md` (see Models).
 - Agent transcripts (`~/.cursor/projects/<slug>/agent-transcripts/`) become this profile's sessions: `session_search`, or `hermes -p <profile> sessions export --format jsonl …`. The same privacy rule applies: this profile only, never another profile's sessions unless the user asks.
 - `.cursor-plugin/plugin.json` becomes `plugin.json` at the plugin root.
 - `.cursor/skills/`, `~/.cursor/skills/`, `~/.cursor/plugins/` become the profile's `skills/` and `plugins/` directories under its Hermes home.
+- `plugins/cache/` (an installed plugin's copy) becomes the profile's `plugins/<plugin>/` directory. `hermes plugins update` replaces it, so copy a skill into the profile's `skills/` before you edit it.
+- **Embedding a screenshot or video** inline in the reply becomes sending the file as an attachment where the chat platform accepts one. Otherwise give its absolute path.
 - `/visualize` (Cursor's chart renderer) doesn't exist. Draw numbers as a Mermaid `xychart-beta` or `pie` block. Where the chat doesn't render Mermaid (Telegram, Discord), give the numbers in one sentence.
-- Cursor's UI doesn't exist: Custom Modes, "Use as Mode", Option+Enter, the Agents Window, Plan Mode, `/add-plugin`, and Customize in the sidebar. Load poteto-mode at the start of each task instead of a mode, and use the Multi-phase plan playbook instead of Plan Mode. pstack installs with `hermes -p <profile> plugins install https://github.com/scotu/pstack-hermes --enable`, and its files are at `github.com/scotu/pstack-hermes`.
+- Cursor's UI doesn't exist: Custom Modes, "Use as Mode", Option+Enter, the Agents Window, Plan Mode, `/add-plugin`, and Customize in the sidebar. Load poteto-mode at the start of each task instead of a mode, and use the Multi-phase plan playbook instead of Plan Mode. pstack installs with `hermes -p <profile> plugins install https://github.com/scotu/pstack-hermes --enable`, and its files are at `github.com/scotu/pstack-hermes`. Install steps for Cursor or Claude Code, such as `/plugin marketplace add cursor/plugins`, don't apply on Hermes.
 - Text saying pstack is built for Cursor, or that its subagents, model roles or `/loop` may not work elsewhere, predates this mapping. On Hermes they work through this skill.
 - `.cursor/worktrees/...` and `~/Library/Application Support/Cursor` paths in worktree-cleanup: skip whatever doesn't exist on this machine.
 
@@ -66,4 +70,6 @@ Hermes has no per-call model. The chat model runs this session, and every `deleg
 
 ## Scripts
 
-`poteto-mode/scripts/` (`watch-pr`, `orch`, `check-plan.mjs`, `worktree-audit.sh`) live under `plugins/pstack/skills/poteto-mode/scripts/` in the profile's Hermes home. They need `bun`, `node`, and `gh` on PATH. Run `bun install` there once before the first use. `worktree-audit.sh` reads Cursor transcript paths and finds nothing on Hermes, so treat its "no transcript" signal as unknown, not as idle.
+`poteto-mode/scripts/` (`watch-pr`, `check-plan.mjs`, `worktree-audit.sh`) live under `plugins/pstack/skills/poteto-mode/scripts/` in the profile's Hermes home. They need `bun`, `node`, and `gh` on PATH. Run `bun install` there once before the first use. `worktree-audit.sh` reads Cursor transcript paths and finds nothing on Hermes, so treat its "no transcript" signal as unknown, not as idle.
+
+`statechart`'s `scripts/statechart` needs a runtime that runs TypeScript (`bun`, or a `node` new enough to strip types). Its first run installs TLC and Java with `mise` and needs the network. When either is missing on this host, say so in one line and stop.
